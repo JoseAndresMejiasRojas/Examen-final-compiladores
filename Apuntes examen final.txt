@@ -1,0 +1,9 @@
+Objetivo: un método que retorne n enteros, donde n es un parámetro entre 1 y 5.  Los valores que se retornen
+se guardan en variables locales.
+
+Ejemplo:
+ornitorrinco, orden_66, es42 = método(3)
+Los enteros se guardan en ornitorrinco, orden_66 y es42.
+
+El input que voy a tener es un archivo, mi output será por la terminal, donde se imprimen los valores
+de las variables que se retornaron.
