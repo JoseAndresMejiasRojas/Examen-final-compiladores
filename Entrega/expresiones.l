@@ -11,16 +11,6 @@ extern void printError(std::string, char);
 %option noyywrap
 
 %%
-/*
- * Incluyo lo necesario para declarar variables, asignarlas mediante el método, tener un parámetro e imprimir.
- * Ejemplo:
- *
- * perro;
- * gato;
- * perro - gato = metodo(2);
- * print perro;
- * print gato;
- */ 
 (\s)+|(\t)+|(\n)+|(\R)+ {
 		//Ignoro los espacios en blanco.
 	}
@@ -39,6 +29,7 @@ extern void printError(std::string, char);
 print	{
 		yylval.hilera = new std::string(yytext,yyleng);
  		return PRINT;
+	}
 \= {
 		yylval.hilera = new std::string(yytext,yyleng);
  		return IGUAL;
@@ -54,6 +45,7 @@ print	{
 [0-9]+ {
 		yylval.intVal = atoi(yytext);
  		return NUM;
+	}
 [A-Z_Ñ0-9][a-zA-Z0-9_ñ]*|[0-9]+(\.|\,)[0-9]+	{
 		printError("Error lexico", 'a');
  		return ERROR;

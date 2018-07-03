@@ -1,0 +1,16 @@
+Objetivo: un método que retorne n enteros, donde n es un parámetro entre 1 y 5.  Los valores que se retornen
+se guardan en variables locales.
+
+Ejemplo:
+ornitorrinco, orden_66, es42 = método(3)
+Los enteros se guardan en ornitorrinco, orden_66 y es42.
+
+ornitorrinco, orden_66 = método(5)
+Da error.
+
+El input que voy a tener es un archivo, mi output será por la terminal, donde se imprimen los valores
+de las variables que se retornaron.  Además, para determinar cuáles valoes tengo que retornar, es necesario
+solicitarlos al usuario.  Por lo que mediante MIPS, necesito solicitar los valoes al usuario por la terminal.
+
+Para no complicarnos la vida, creo que lo mejor es tener una lista el cual va "recolectando" todas las variables declaradas
+y así llevar una cuenta y un registro de dichas variables.  Luego, evitar ciertos errores como declaraciones repetidas.

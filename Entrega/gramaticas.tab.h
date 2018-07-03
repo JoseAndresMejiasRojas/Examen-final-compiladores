@@ -41,7 +41,7 @@ extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
 /* Line 2058 of yacc.c  */
-#line 583 "gramaticas.cpp"
+#line 48 "gramaticas.cpp"
 
 	#include <list>
 	#include <string>
@@ -57,40 +57,15 @@ extern int yydebug;
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     HILERA = 258,
-     FOR = 259,
-     WHILE = 260,
-     IF = 261,
-     ELSE = 262,
-     COMPARACION = 263,
-     AND_OR = 264,
-     BOOL = 265,
-     NUM = 266,
-     INI = 267,
-     FIN = 268,
-     RET = 269,
-     MAS = 270,
-     MENOS = 271,
-     POR = 272,
-     ENTRE = 273,
-     MOD = 274,
-     ENTRADA = 275,
-     SALIDA = 276,
-     ID = 277,
-     ERROR = 278,
-     EJECUCION = 279,
-     PARD = 280,
-     CORD = 281,
-     PARI = 282,
-     CORI = 283,
-     IGUAL = 284,
-     DOSP = 285,
-     COM = 286,
-     PUNTO = 287,
-     POINTER = 288,
-     PYC = 289,
-     LINK = 290,
-     JAAH = 291
+     NUM = 258,
+     SEPARADOR = 259,
+     ID = 260,
+     ERROR = 261,
+     PARENTESIS_DERECHO = 262,
+     PARENTESIS_IZQUIERDO = 263,
+     IGUAL = 264,
+     PRINT = 265,
+     PUNTOYCOMA = 266
    };
 #endif
 
@@ -99,17 +74,14 @@ extern int yydebug;
 typedef union YYSTYPE
 {
 /* Line 2058 of yacc.c  */
-#line 588 "gramaticas.cpp"
+#line 53 "gramaticas.cpp"
 
 	string* hilera;
 	int intVal;
-	struct Caja* nodo;
-	struct Simbolos* simbolo;
-	std::list<Caja*>* params;
 
 
 /* Line 2058 of yacc.c  */
-#line 113 "gramaticas.tab.h"
+#line 85 "gramaticas.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
