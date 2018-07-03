@@ -501,8 +501,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    75,    75,    79,    83,    89,    93,    96,   100,   107,
-     112
+       0,    75,    75,    79,    86,    92,    96,    99,   103,   112,
+     117
 };
 #endif
 
@@ -1402,9 +1402,17 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-        case 4:
+        case 3:
 /* Line 1792 of yacc.c  */
-#line 84 "gramaticas.cpp"
+#line 80 "gramaticas.cpp"
+    {
+		// Aquí verifico que no tenga ninguna variable declarada repetida.
+	}
+    break;
+
+  case 4:
+/* Line 1792 of yacc.c  */
+#line 87 "gramaticas.cpp"
     {
 		// Con *$1 obtengo el valor del token.
 		lista_variables.push_front(*(yyvsp[(1) - (3)].hilera));	// Agrego variables.
@@ -1414,30 +1422,32 @@ yyreduce:
 
   case 5:
 /* Line 1792 of yacc.c  */
-#line 90 "gramaticas.cpp"
+#line 93 "gramaticas.cpp"
     {
-		// Hago el juego de MIPS.
+		
 	}
     break;
 
   case 6:
 /* Line 1792 of yacc.c  */
-#line 94 "gramaticas.cpp"
+#line 97 "gramaticas.cpp"
     {
 	}
     break;
 
   case 8:
 /* Line 1792 of yacc.c  */
-#line 101 "gramaticas.cpp"
+#line 104 "gramaticas.cpp"
     {
 		// Verifico que varios_parametros se encuentren en lista_variables.
+		for (std::list<std::string>::iterator it=(yyvsp[(1) - (6)].parametros)->begin(); it != (yyvsp[(1) - (6)].parametros)->end(); ++it)
+			std::cout << *it << std::endl;
 	}
     break;
 
   case 9:
 /* Line 1792 of yacc.c  */
-#line 108 "gramaticas.cpp"
+#line 113 "gramaticas.cpp"
     {
 		(yyval.parametros) = new list<std::string>();	// Creo la lista de parámetros.
 		(yyval.parametros)->push_front(*(yyvsp[(1) - (1)].hilera));				// Agrego el parámetro.
@@ -1446,18 +1456,20 @@ yyreduce:
 
   case 10:
 /* Line 1792 of yacc.c  */
-#line 113 "gramaticas.cpp"
+#line 118 "gramaticas.cpp"
     {
 		(yyval.parametros) = new list<std::string>();	// Creo la lista de parámetros.
 		(yyval.parametros)->push_front(*(yyvsp[(1) - (3)].hilera));			// Agrego el parámetro.
 		
 		(yyval.parametros)->merge(*(yyvsp[(3) - (3)].parametros));					// Hago un merge para tener una sola lista.
+		
+		delete (yyvsp[(3) - (3)].parametros);
 	}
     break;
 
 
 /* Line 1792 of yacc.c  */
-#line 1461 "gramaticas.tab.c"
+#line 1473 "gramaticas.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1689,7 +1701,7 @@ yyreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 122 "gramaticas.cpp"
+#line 129 "gramaticas.cpp"
 
 int main(int argc, char** argv) {
 	if(argc > 1)
@@ -1701,16 +1713,13 @@ int main(int argc, char** argv) {
 	}
 	yyparse();
 	
-	for (std::list<std::string>::iterator it=lista_variables.begin(); it != lista_variables.end(); ++it)
-    std::cout << *it << std::endl;
-	
 	return 0;
 }
 
 void printError(string errormsg, char tipo)
 {
 	extern int yylineno;
-	cout<< errormsg<<" en la linea: "<<yylineno<<"\n";
+	std::cout<< errormsg<<" en la linea: "<<yylineno<<"\n";
 	if(tipo == 'a')
 	{
 		printf("El error es: %s\n",yytext);

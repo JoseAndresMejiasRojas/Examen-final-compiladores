@@ -91,7 +91,7 @@ instrucciones:
 	}
 	| PRINT ID PUNTOYCOMA instrucciones
 	{
-		// Hago el juego de MIPS.
+		
 	}
 	| metodo_retorno PUNTOYCOMA instrucciones
 	{
@@ -103,6 +103,7 @@ metodo_retorno:
 	varios_parametros IGUAL ID PARENTESIS_IZQUIERDO NUM PARENTESIS_DERECHO
 	{
 		// Verifico que varios_parametros se encuentren en lista_variables.
+		// Note que aquí ya tengo todos los parámetros agregados.
 	}
 	;
 	
@@ -118,6 +119,8 @@ varios_parametros:
 		$$->push_front(*$1);			// Agrego el parámetro.
 		
 		$$->merge(*$3);					// Hago un merge para tener una sola lista.
+		
+		delete $3;						// Elimino las listas que se crearon que ya están vacías.
 	}
 	;
 
@@ -139,7 +142,7 @@ int main(int argc, char** argv) {
 void printError(string errormsg, char tipo)
 {
 	extern int yylineno;
-	cout<< errormsg<<" en la linea: "<<yylineno<<"\n";
+	std::cout<< errormsg<<" en la linea: "<<yylineno<<"\n";
 	if(tipo == 'a')
 	{
 		printf("El error es: %s\n",yytext);

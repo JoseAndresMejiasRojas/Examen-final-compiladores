@@ -1,6 +1,1 @@
-otra_prueba;
-otra_prueba;
-es_distinto_todojajaj;
-holap;
-
-prueba - otra_prueba - ba454654fsdfs= metodo(4);
+variable1 - variable2 - variable3= metodo(4);
