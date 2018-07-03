@@ -65,12 +65,14 @@
 /* Line 371 of yacc.c  */
 #line 1 "gramaticas.cpp"
 
-#include <stdio.h>
+#include <iostream>
 #include <string>
 #include <stack>
+#include <list>
 
-#include "ArbolC++.h"
-using namespace std;
+
+
+
 extern "C" int yylex();
 extern "C" int yyparse();
 extern "C" FILE *yyin;
@@ -80,38 +82,43 @@ void yyerror(const char *s);
 std::list<std::string> lista_variables;
 int cantidad_variables = 0;
 
-/*______________________________________________________________________________
+// retorna -1 si hay error.
+int analisis_semantico(std::list<std::string> lista)
+{
+	
+	return 0;
+}
 
-INICIO DE LOS METODOS DE IMPRESION.
+// retorna -1 si hay error.
+bool revisar_variables_repetidas(std::list<std::string> lista)
+{
+	bool repetido = false;
 
-________________________________________________________________________________
-*/
-
-
-
-/*______________________________________________________________________________
-
-FIN DE LOS METODOS DE IMPRESION
-________________________________________________________________________________
-*/
-
-/*______________________________________________________________________________
-
-INICIO DE LOS METODOS DE BUSQUEDA DE ANALISIS
-________________________________________________________________________________
-*/
-
-
-
-/*______________________________________________________________________________
-
-FIN DE LOS METODOS DE BUSQUEDA DE EXISTENCIA EN LA TABLA Y ALCANCE
-________________________________________________________________________________
-*/
+	std::list<std::string>::iterator it = lista.begin();
+	std::list<std::string>::iterator it2 = it;
+	++it2;
+	
+	while( it != lista.end() && repetido == false )
+	{
+		while( it2 != lista.end() )
+		{
+			if(  it2->compare(*it) == 0 )
+			{
+				repetido = true;
+			}
+			++it2;
+		}
+		++it;
+		it2 = it;
+		++it2;
+	}
+	
+	return repetido;
+}
 
 
 /* Line 371 of yacc.c  */
-#line 115 "gramaticas.tab.c"
+#line 122 "gramaticas.tab.c"
 
 # ifndef YY_NULL
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -142,14 +149,14 @@ extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
 /* Line 387 of yacc.c  */
-#line 49 "gramaticas.cpp"
+#line 56 "gramaticas.cpp"
 
 	#include <list>
 	#include <string>
 
 
 /* Line 387 of yacc.c  */
-#line 153 "gramaticas.tab.c"
+#line 160 "gramaticas.tab.c"
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -174,7 +181,7 @@ extern int yydebug;
 typedef union YYSTYPE
 {
 /* Line 387 of yacc.c  */
-#line 53 "gramaticas.cpp"
+#line 60 "gramaticas.cpp"
 
 	std::string* hilera;
 	int intVal;
@@ -182,7 +189,7 @@ typedef union YYSTYPE
 
 
 /* Line 387 of yacc.c  */
-#line 186 "gramaticas.tab.c"
+#line 193 "gramaticas.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -210,7 +217,7 @@ int yyparse ();
 /* Copy the second part of user declarations.  */
 
 /* Line 390 of yacc.c  */
-#line 214 "gramaticas.tab.c"
+#line 221 "gramaticas.tab.c"
 
 #ifdef short
 # undef short
@@ -501,8 +508,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    75,    75,    79,    86,    92,    96,    99,   103,   112,
-     117
+       0,    82,    82,    86,    93,    99,   103,   107,   111,   127,
+     132
 };
 #endif
 
@@ -1404,7 +1411,7 @@ yyreduce:
     {
         case 3:
 /* Line 1792 of yacc.c  */
-#line 80 "gramaticas.cpp"
+#line 87 "gramaticas.cpp"
     {
 		// Aquí verifico que no tenga ninguna variable declarada repetida.
 	}
@@ -1412,7 +1419,7 @@ yyreduce:
 
   case 4:
 /* Line 1792 of yacc.c  */
-#line 87 "gramaticas.cpp"
+#line 94 "gramaticas.cpp"
     {
 		// Con *$1 obtengo el valor del token.
 		lista_variables.push_front(*(yyvsp[(1) - (3)].hilera));	// Agrego variables.
@@ -1422,54 +1429,62 @@ yyreduce:
 
   case 5:
 /* Line 1792 of yacc.c  */
-#line 93 "gramaticas.cpp"
+#line 100 "gramaticas.cpp"
     {
-		
+		// MIPS.
 	}
     break;
 
   case 6:
 /* Line 1792 of yacc.c  */
-#line 97 "gramaticas.cpp"
+#line 104 "gramaticas.cpp"
     {
+		// MIPS.
 	}
     break;
 
   case 8:
 /* Line 1792 of yacc.c  */
-#line 104 "gramaticas.cpp"
+#line 112 "gramaticas.cpp"
     {
+		extern int yylineno;
 		// Verifico que varios_parametros se encuentren en lista_variables.
-		for (std::list<std::string>::iterator it=(yyvsp[(1) - (6)].parametros)->begin(); it != (yyvsp[(1) - (6)].parametros)->end(); ++it)
-			std::cout << *it << std::endl;
+		
+		// Note que aquí ya tengo todos los parámetros agregados.
+		if( revisar_variables_repetidas(*(yyvsp[(1) - (6)].parametros)) == true )	// Si hay errores, me salgo.
+		{
+			std::cout << "Error en la linea " << yylineno << ", no pueden haber parametros repetidos." << std::endl;
+			exit(-1);
+		}
+		
 	}
     break;
 
   case 9:
 /* Line 1792 of yacc.c  */
-#line 113 "gramaticas.cpp"
+#line 128 "gramaticas.cpp"
     {
-		(yyval.parametros) = new list<std::string>();	// Creo la lista de parámetros.
+		(yyval.parametros) = new std::list<std::string>();	// Creo la lista de parámetros.
 		(yyval.parametros)->push_front(*(yyvsp[(1) - (1)].hilera));				// Agrego el parámetro.
 	}
     break;
 
   case 10:
 /* Line 1792 of yacc.c  */
-#line 118 "gramaticas.cpp"
+#line 133 "gramaticas.cpp"
     {
-		(yyval.parametros) = new list<std::string>();	// Creo la lista de parámetros.
+		(yyval.parametros) = new std::list<std::string>();	// Creo la lista de parámetros.
 		(yyval.parametros)->push_front(*(yyvsp[(1) - (3)].hilera));			// Agrego el parámetro.
 		
 		(yyval.parametros)->merge(*(yyvsp[(3) - (3)].parametros));					// Hago un merge para tener una sola lista.
 		
-		delete (yyvsp[(3) - (3)].parametros);
+		delete (yyvsp[(3) - (3)].parametros);						// Elimino las listas que se crearon que ya están vacías.
 	}
     break;
 
 
 /* Line 1792 of yacc.c  */
-#line 1473 "gramaticas.tab.c"
+#line 1488 "gramaticas.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1701,7 +1716,7 @@ yyreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 129 "gramaticas.cpp"
+#line 144 "gramaticas.cpp"
 
 int main(int argc, char** argv) {
 	if(argc > 1)
@@ -1716,7 +1731,7 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
-void printError(string errormsg, char tipo)
+void printError(std::string errormsg, char tipo)
 {
 	extern int yylineno;
 	std::cout<< errormsg<<" en la linea: "<<yylineno<<"\n";
