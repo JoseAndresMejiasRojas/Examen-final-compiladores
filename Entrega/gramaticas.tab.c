@@ -76,8 +76,9 @@ extern "C" int yyparse();
 extern "C" FILE *yyin;
 extern "C" char* yytext;
 void yyerror(const char *s);
-Arbol arbol;
-std::stack<Caja*> pila;
+
+std::list<std::string> lista_variables;
+int cantidad_variables = 0;
 
 /*______________________________________________________________________________
 
@@ -110,7 +111,7 @@ ________________________________________________________________________________
 
 
 /* Line 371 of yacc.c  */
-#line 114 "gramaticas.tab.c"
+#line 115 "gramaticas.tab.c"
 
 # ifndef YY_NULL
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -141,11 +142,10 @@ extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
 /* Line 387 of yacc.c  */
-#line 48 "gramaticas.cpp"
+#line 49 "gramaticas.cpp"
 
 	#include <list>
 	#include <string>
-	using namespace std;
 
 
 /* Line 387 of yacc.c  */
@@ -176,12 +176,13 @@ typedef union YYSTYPE
 /* Line 387 of yacc.c  */
 #line 53 "gramaticas.cpp"
 
-	string* hilera;
+	std::string* hilera;
 	int intVal;
+	std::list<std::string>* parametros;
 
 
 /* Line 387 of yacc.c  */
-#line 185 "gramaticas.tab.c"
+#line 186 "gramaticas.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -209,7 +210,7 @@ int yyparse ();
 /* Copy the second part of user declarations.  */
 
 /* Line 390 of yacc.c  */
-#line 213 "gramaticas.tab.c"
+#line 214 "gramaticas.tab.c"
 
 #ifdef short
 # undef short
@@ -429,7 +430,7 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  11
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   22
+#define YYLAST   19
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  12
@@ -438,7 +439,7 @@ union yyalloc
 /* YYNRULES -- Number of rules.  */
 #define YYNRULES  10
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  25
+#define YYNSTATES  24
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
@@ -484,8 +485,8 @@ static const yytype_uint8 yytranslate[] =
    YYRHS.  */
 static const yytype_uint8 yyprhs[] =
 {
-       0,     0,     3,     5,     7,    11,    16,    20,    21,    29,
-      31
+       0,     0,     3,     5,     7,    11,    16,    20,    21,    28,
+      30
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
@@ -493,15 +494,15 @@ static const yytype_int8 yyrhs[] =
 {
       13,     0,    -1,    14,    -1,    15,    -1,     5,    11,    15,
       -1,    10,     5,    11,    15,    -1,    16,    11,    15,    -1,
-      -1,    17,     9,     5,     8,     3,     7,    11,    -1,     5,
-      -1,     5,     4,    17,    -1
+      -1,    17,     9,     5,     8,     3,     7,    -1,     5,    -1,
+       5,     4,    17,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    72,    72,    76,    80,    81,    82,    83,    87,    91,
-      92
+       0,    75,    75,    79,    83,    89,    93,    96,   100,   107,
+     112
 };
 #endif
 
@@ -537,7 +538,7 @@ static const yytype_uint8 yyr1[] =
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     1,     1,     3,     4,     3,     0,     7,     1,
+       0,     2,     1,     1,     3,     4,     3,     0,     6,     1,
        3
 };
 
@@ -548,7 +549,7 @@ static const yytype_uint8 yydefact[] =
 {
        7,     9,     0,     0,     2,     3,     0,     0,     0,     7,
        0,     1,     7,     0,     9,    10,     4,     7,     6,     0,
-       5,     0,     0,     0,     8
+       5,     0,     0,     8
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
@@ -564,13 +565,13 @@ static const yytype_int8 yypact[] =
 {
       -4,    -2,    -1,     5,   -10,   -10,     0,     1,     2,    -4,
        3,   -10,    -4,     7,     9,   -10,   -10,    -4,   -10,     8,
-     -10,    12,    10,    11,   -10
+     -10,    12,    10,   -10
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -10,   -10,   -10,    -9,   -10,    13
+     -10,   -10,   -10,    -9,   -10,    11
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -580,8 +581,7 @@ static const yytype_int8 yypgoto[] =
 static const yytype_uint8 yytable[] =
 {
       16,     1,     8,    18,    10,    11,     2,    14,    20,     9,
-      13,    12,    19,     8,    17,    22,    21,    23,     0,     0,
-       0,    15,    24
+      13,    12,    19,     8,    17,    22,    21,    23,     0,    15
 };
 
 #define yypact_value_is_default(Yystate) \
@@ -593,8 +593,7 @@ static const yytype_uint8 yytable[] =
 static const yytype_int8 yycheck[] =
 {
        9,     5,     4,    12,     5,     0,    10,     5,    17,    11,
-       9,    11,     5,     4,    11,     3,     8,     7,    -1,    -1,
-      -1,     8,    11
+       9,    11,     5,     4,    11,     3,     8,     7,    -1,     8
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -603,7 +602,7 @@ static const yytype_uint8 yystos[] =
 {
        0,     5,    10,    13,    14,    15,    16,    17,     4,    11,
        5,     0,    11,     9,     5,    17,    15,    11,    15,     5,
-      15,     8,     3,     7,    11
+      15,     8,     3,     7
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1403,9 +1402,62 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-      
+        case 4:
 /* Line 1792 of yacc.c  */
-#line 1409 "gramaticas.tab.c"
+#line 84 "gramaticas.cpp"
+    {
+		// Con *$1 obtengo el valor del token.
+		lista_variables.push_front(*(yyvsp[(1) - (3)].hilera));	// Agrego variables.
+		++cantidad_variables;				// Tengo un registro de la cantidad de variables.  Note que también cuenta las repetidas.
+	}
+    break;
+
+  case 5:
+/* Line 1792 of yacc.c  */
+#line 90 "gramaticas.cpp"
+    {
+		// Hago el juego de MIPS.
+	}
+    break;
+
+  case 6:
+/* Line 1792 of yacc.c  */
+#line 94 "gramaticas.cpp"
+    {
+	}
+    break;
+
+  case 8:
+/* Line 1792 of yacc.c  */
+#line 101 "gramaticas.cpp"
+    {
+		// Verifico que varios_parametros se encuentren en lista_variables.
+	}
+    break;
+
+  case 9:
+/* Line 1792 of yacc.c  */
+#line 108 "gramaticas.cpp"
+    {
+		(yyval.parametros) = new list<std::string>();	// Creo la lista de parámetros.
+		(yyval.parametros)->push_front(*(yyvsp[(1) - (1)].hilera));				// Agrego el parámetro.
+	}
+    break;
+
+  case 10:
+/* Line 1792 of yacc.c  */
+#line 113 "gramaticas.cpp"
+    {
+		(yyval.parametros) = new list<std::string>();	// Creo la lista de parámetros.
+		(yyval.parametros)->push_front(*(yyvsp[(1) - (3)].hilera));			// Agrego el parámetro.
+		
+		(yyval.parametros)->merge(*(yyvsp[(3) - (3)].parametros));					// Hago un merge para tener una sola lista.
+	}
+    break;
+
+
+/* Line 1792 of yacc.c  */
+#line 1461 "gramaticas.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1637,7 +1689,7 @@ yyreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 96 "gramaticas.cpp"
+#line 122 "gramaticas.cpp"
 
 int main(int argc, char** argv) {
 	if(argc > 1)
@@ -1648,7 +1700,10 @@ int main(int argc, char** argv) {
 		yyin = stdin;
 	}
 	yyparse();
-	printf("Breakpoint");
+	
+	for (std::list<std::string>::iterator it=lista_variables.begin(); it != lista_variables.end(); ++it)
+    std::cout << *it << std::endl;
+	
 	return 0;
 }
 

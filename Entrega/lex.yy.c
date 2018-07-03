@@ -797,7 +797,7 @@ YY_RULE_SETUP
 #line 17 "expresiones.l"
 {
 		yylval.hilera = new std::string(yytext,yyleng);
- 		return PARENTESIS_DERECHO;
+ 		return PARENTESIS_IZQUIERDO;
  	}
 	YY_BREAK
 case 3:
@@ -805,7 +805,7 @@ YY_RULE_SETUP
 #line 21 "expresiones.l"
 {
 		yylval.hilera = new std::string(yytext,yyleng);
- 		return PARENTESIS_IZQUIERDO;
+ 		return PARENTESIS_DERECHO;
  	}
 	YY_BREAK
 case 4:

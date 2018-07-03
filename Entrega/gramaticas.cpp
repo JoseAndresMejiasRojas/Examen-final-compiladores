@@ -10,8 +10,9 @@ extern "C" int yyparse();
 extern "C" FILE *yyin;
 extern "C" char* yytext;
 void yyerror(const char *s);
-Arbol arbol;
-std::stack<Caja*> pila;
+
+std::list<std::string> lista_variables;
+int cantidad_variables = 0;
 
 /*______________________________________________________________________________
 
@@ -48,11 +49,11 @@ ________________________________________________________________________________
 %code requires{
 	#include <list>
 	#include <string>
-	using namespace std;
 }
 %union {
-	string* hilera;
+	std::string* hilera;
 	int intVal;
+	std::list<std::string>* parametros;
 }
 
 %token <intVal> NUM "numero"
@@ -65,6 +66,8 @@ ________________________________________________________________________________
 %token <hilera> PRINT "imprimir"
 %token <hilera> PUNTOYCOMA ";"
 
+%type <parametros> varios_parametros
+
 %%
 //This is where the fun begins.
 
@@ -74,25 +77,51 @@ super:
 	
 principal:
 	instrucciones
+	{
+		// Aquí verifico que no tenga ninguna variable declarada repetida.
+	}
 	;
 	
 instrucciones:
 	ID PUNTOYCOMA instrucciones
+	{
+		// Con *$1 obtengo el valor del token.
+		lista_variables.push_front(*$1);	// Agrego variables.
+		++cantidad_variables;				// Tengo un registro de la cantidad de variables.  Note que también cuenta las repetidas.
+	}
 	| PRINT ID PUNTOYCOMA instrucciones
+	{
+		// Hago el juego de MIPS.
+	}
 	| metodo_retorno PUNTOYCOMA instrucciones
+	{
+	}
 	| 
 	;
 
 metodo_retorno:
-	varios_parametros IGUAL ID PARENTESIS_IZQUIERDO NUM PARENTESIS_DERECHO PUNTOYCOMA
+	varios_parametros IGUAL ID PARENTESIS_IZQUIERDO NUM PARENTESIS_DERECHO
+	{
+		// Verifico que varios_parametros se encuentren en lista_variables.
+	}
 	;
 	
 varios_parametros:
 	ID
+	{
+		$$ = new list<std::string>();	// Creo la lista de parámetros.
+		$$->push_front(*$1);				// Agrego el parámetro.
+	}
 	| ID SEPARADOR varios_parametros
+	{
+		$$ = new list<std::string>();	// Creo la lista de parámetros.
+		$$->push_front(*$1);			// Agrego el parámetro.
+		
+		$$->merge(*$3);					// Hago un merge para tener una sola lista.
+	}
 	;
 
-//This is where we end our suffering.
+// This is where we end our suffering.
 %%
 int main(int argc, char** argv) {
 	if(argc > 1)
@@ -103,6 +132,7 @@ int main(int argc, char** argv) {
 		yyin = stdin;
 	}
 	yyparse();
+	
 	return 0;
 }
 

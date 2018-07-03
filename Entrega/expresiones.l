@@ -16,11 +16,11 @@ extern void printError(std::string, char);
 	}
 \(	{
 		yylval.hilera = new std::string(yytext,yyleng);
- 		return PARENTESIS_DERECHO;
+ 		return PARENTESIS_IZQUIERDO;
  	}
 \)	{
 		yylval.hilera = new std::string(yytext,yyleng);
- 		return PARENTESIS_IZQUIERDO;
+ 		return PARENTESIS_DERECHO;
  	}
 \-	{
 		yylval.hilera = new std::string(yytext,yyleng);

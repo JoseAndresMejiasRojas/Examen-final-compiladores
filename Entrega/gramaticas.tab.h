@@ -41,15 +41,14 @@ extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
 /* Line 2058 of yacc.c  */
-#line 48 "gramaticas.cpp"
+#line 49 "gramaticas.cpp"
 
 	#include <list>
 	#include <string>
-	using namespace std;
 
 
 /* Line 2058 of yacc.c  */
-#line 53 "gramaticas.tab.h"
+#line 52 "gramaticas.tab.h"
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -76,8 +75,9 @@ typedef union YYSTYPE
 /* Line 2058 of yacc.c  */
 #line 53 "gramaticas.cpp"
 
-	string* hilera;
+	std::string* hilera;
 	int intVal;
+	std::list<std::string>* parametros;
 
 
 /* Line 2058 of yacc.c  */
