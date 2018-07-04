@@ -111,9 +111,31 @@ bool revisar_scope()
 	return error;
 }
 
+// Devuelve la posición del elemento de la variable en la lista.
+int obtener_index_variable( std::string variable, std::list<std::string>  lista )
+{
+	int posicion = 0;
+
+	std::list<std::string>::iterator it = lista.begin();
+
+	while( it != lista.end() )
+	{
+		if( it->compare(variable) == 0 )	// Si es igual.
+		{
+			return posicion;
+		}
+		++posicion;
+		++it;
+	}
+
+
+	return posicion;
+}
+
 void generar_mips(std::list<std::string> lista_parametros)
 {
 	std::ofstream codigo_mips("codigo.s");	// Creo el archivo para MIPS.
+	int index = -1;
 	//codigo_mips <<  "Prueba2" << std::endl; ejemplo para escribir mips.
 
 	// Generar una variable (.data) para cada parámetro?  Para solucionar cuando haya n parámetros.
@@ -121,16 +143,69 @@ void generar_mips(std::list<std::string> lista_parametros)
 
 	std::list<std::string>::iterator it_parametros = lista_parametros.begin();
 
-	// Escribo las variables necesarias para guardar valores.  Note que no tienen ningún valor.
-	for( int contador = 0; contador < lista_parametros.size(); ++contador, ++it_parametros )
+	codigo_mips << "arreglo_variables" << ":\t.word 0";
+
+	// Escribo el arreglo con las variables.  Por deafult es 0.  *Es obligatorio poner un valor.*
+	for( int contador = 0; contador < lista_parametros.size() - 1; ++contador )
 	{
-		codigo_mips << *it_parametros << ":\t.word" << std::endl;
+		codigo_mips << ", 0";
 	}
+	codigo_mips << std::endl;
 
 	codigo_mips << ".text" << std::endl;
+	codigo_mips << "main:" << std::endl;
+
+	// Recorro todas las instrucciones.
+	for( std::list<std::string>::iterator it = lista_instrucciones.begin(); it != lista_instrucciones.end(); ++it )
+	{
+		if( (*it)[0] == 'P' )	// Imprimir.
+		{
+			index = obtener_index_variable( (*it).substr(1), lista_parametros );
+			/*
+				li $t1, INDEX
+				mul $t0,$t1,4
+				la $t2, ARREGLO
+				add $t2, $t0
+				lw $a0, 0($t2)
+			*/
+			codigo_mips << "li $t1,"+std::to_string(index) << std::endl;
+			codigo_mips << "mul $t0, $t1, 4" << std::endl;					// *4 para moverme de word en word.
+			codigo_mips << "la $t2,arreglo_variables" << std::endl;	// Cargo el arreglo.
+			codigo_mips << "add $t2, $t0, $t2" << std::endl;				// Me muevo en el arreglo para obtener el valor.
+			codigo_mips << "lw $a0, 0($t2)" << std::endl;
+
+			codigo_mips << "li $v0, 1" << std::endl;							 	// Para el system call.
+
+			codigo_mips << "syscall" << std::endl;
+
+		}
+		else									// Metodo de retorno.
+		{
+			// Ciclo para pedir números al usuario.
+			codigo_mips << "li $t0, 0" << std::endl;									// $t0 = contador.
+			codigo_mips << "la $t1, arreglo_variables" << std::endl;	// Cargo el arreglo para guardar los valores.
+
+			codigo_mips << "ciclo:" << std::endl;
+
+			codigo_mips << "li $v0, 5" << std::endl;
+			codigo_mips << "syscall" << std::endl;										// Leo.
+			codigo_mips << "sw $v0, 0($t1)" << std::endl;							// Guardo en el arreglo el valor del usuario.
+
+			codigo_mips << "add $t0, 1" << std::endl;									// Incremeneto contador.
+			codigo_mips << "add $t1, 4" << std::endl;									// Me muevo en el arreglo.
+
+			codigo_mips << "bge $t0," + std::to_string(lista_parametros.size()) + ",salir_ciclo" << std::endl;
+			codigo_mips << "j ciclo" << std::endl;
+
+			codigo_mips << "salir_ciclo:" << std::endl;
+		}
+	}
+
+	// Termino ejecución.
+	codigo_mips << "li $v0, 10" << std::endl;
+	codigo_mips << "syscall" << std::endl;
 
 }
-
 %}
 %error-verbose
 

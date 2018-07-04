@@ -176,9 +176,31 @@ bool revisar_scope()
 	return error;
 }
 
+// Devuelve la posición del elemento de la variable en la lista.
+int obtener_index_variable( std::string variable, std::list<std::string>  lista )
+{
+	int posicion = 0;
+
+	std::list<std::string>::iterator it = lista.begin();
+
+	while( it != lista.end() )
+	{
+		if( it->compare(variable) == 0 )	// Si es igual.
+		{
+			return posicion;
+		}
+		++posicion;
+		++it;
+	}
+
+
+	return posicion;
+}
+
 void generar_mips(std::list<std::string> lista_parametros)
 {
 	std::ofstream codigo_mips("codigo.s");	// Creo el archivo para MIPS.
+	int index = -1;
 	//codigo_mips <<  "Prueba2" << std::endl; ejemplo para escribir mips.
 
 	// Generar una variable (.data) para cada parámetro?  Para solucionar cuando haya n parámetros.
@@ -186,15 +208,71 @@ void generar_mips(std::list<std::string> lista_parametros)
 
 	std::list<std::string>::iterator it_parametros = lista_parametros.begin();
 
-	for( int contador = 0; contador < lista_parametros.size(); ++contador, ++it_parametros )
+	codigo_mips << "arreglo_variables" << ":\t.word 0";
+
+	// Escribo el arreglo con las variables.  Por deafult es 0.  *Es obligatorio poner un valor.*
+	for( int contador = 0; contador < lista_parametros.size() - 1; ++contador )
 	{
-		codigo_mips << *it_parametros << ":\t.word" << std::endl;
+		codigo_mips << ", 0";
 	}
+	codigo_mips << std::endl;
+
+	codigo_mips << ".text" << std::endl;
+	codigo_mips << "main:" << std::endl;
+
+	// Recorro todas las instrucciones.
+	for( std::list<std::string>::iterator it = lista_instrucciones.begin(); it != lista_instrucciones.end(); ++it )
+	{
+		if( (*it)[0] == 'P' )	// Imprimir.
+		{
+			index = obtener_index_variable( (*it).substr(1), lista_parametros );
+			/*
+				li $t1, INDEX
+				mul $t0,$t1,4
+				la $t2, ARREGLO
+				add $t2, $t0
+				lw $a0, 0($t2)
+			*/
+			codigo_mips << "li $t1,"+std::to_string(index) << std::endl;
+			codigo_mips << "mul $t0, $t1, 4" << std::endl;					// *4 para moverme de word en word.
+			codigo_mips << "la $t2,arreglo_variables" << std::endl;	// Cargo el arreglo.
+			codigo_mips << "add $t2, $t0, $t2" << std::endl;				// Me muevo en el arreglo para obtener el valor.
+			codigo_mips << "lw $a0, 0($t2)" << std::endl;
+
+			codigo_mips << "li $v0, 1" << std::endl;							 	// Para el system call.
+
+			codigo_mips << "syscall" << std::endl;
+
+		}
+		else									// Metodo de retorno.
+		{
+			// Ciclo para pedir números al usuario.
+			codigo_mips << "li $t0, 0" << std::endl;									// $t0 = contador.
+			codigo_mips << "la $t1, arreglo_variables" << std::endl;	// Cargo el arreglo para guardar los valores.
+
+			codigo_mips << "ciclo:" << std::endl;
+
+			codigo_mips << "li $v0, 5" << std::endl;
+			codigo_mips << "syscall" << std::endl;										// Leo.
+			codigo_mips << "sw $v0, 0($t1)" << std::endl;							// Guardo en el arreglo el valor del usuario.
+
+			codigo_mips << "add $t0, 1" << std::endl;									// Incremeneto contador.
+			codigo_mips << "add $t1, 4" << std::endl;									// Me muevo en el arreglo.
+
+			codigo_mips << "bge $t0," + std::to_string(lista_parametros.size()) + ",salir_ciclo" << std::endl;
+			codigo_mips << "j ciclo" << std::endl;
+
+			codigo_mips << "salir_ciclo:" << std::endl;
+		}
+	}
+
+	// Termino ejecución.
+	codigo_mips << "li $v0, 10" << std::endl;
+	codigo_mips << "syscall" << std::endl;
 
 }
 
-
-#line 198 "gramaticas.tab.c" /* yacc.c:339  */
+#line 276 "gramaticas.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -224,12 +302,12 @@ void generar_mips(std::list<std::string> lista_parametros)
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 134 "gramaticas.cpp" /* yacc.c:355  */
+#line 212 "gramaticas.cpp" /* yacc.c:355  */
 
 	#include <list>
 	#include <string>
 
-#line 233 "gramaticas.tab.c" /* yacc.c:355  */
+#line 311 "gramaticas.tab.c" /* yacc.c:355  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -253,13 +331,13 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 138 "gramaticas.cpp" /* yacc.c:355  */
+#line 216 "gramaticas.cpp" /* yacc.c:355  */
 
 	std::string* hilera;
 	int intVal;
 	std::list<std::string>* parametros;
 
-#line 263 "gramaticas.tab.c" /* yacc.c:355  */
+#line 341 "gramaticas.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -276,7 +354,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 280 "gramaticas.tab.c" /* yacc.c:358  */
+#line 358 "gramaticas.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -572,9 +650,9 @@ static const yytype_uint8 yytranslate[] =
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_uint8 yyrline[] =
+static const yytype_uint16 yyrline[] =
 {
-       0,   162,   162,   166,   186,   194,   207,   211,   231,   236
+       0,   240,   240,   244,   264,   272,   285,   289,   309,   314
 };
 #endif
 
@@ -1351,7 +1429,7 @@ yyreduce:
   switch (yyn)
     {
         case 3:
-#line 167 "gramaticas.cpp" /* yacc.c:1646  */
+#line 245 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		// Necesito verificar que las variables que imprimo se hayan declarado en el método.
 		if( revisar_existencia_parametros(*(yyvsp[0].parametros)) == true && lista_variables.size() > 0 )
@@ -1368,11 +1446,11 @@ yyreduce:
 		// Genero MIPS acorde a la lista que tengo.
 		generar_mips(*(yyvsp[0].parametros));
 	}
-#line 1372 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1450 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 187 "gramaticas.cpp" /* yacc.c:1646  */
+#line 265 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		(yyval.parametros) = (yyvsp[0].parametros);
 
@@ -1380,11 +1458,11 @@ yyreduce:
 
 		lista_instrucciones.push_front("P"+*(yyvsp[-2].hilera));	// Con P ya que no existe un ID que empiece con mayúscula.
 	}
-#line 1384 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1462 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 195 "gramaticas.cpp" /* yacc.c:1646  */
+#line 273 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		(yyval.parametros) = (yyvsp[-2].parametros);
 
@@ -1397,17 +1475,17 @@ yyreduce:
 
 		lista_instrucciones.push_front("metodo_retorno");
 	}
-#line 1401 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1479 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 207 "gramaticas.cpp" /* yacc.c:1646  */
+#line 285 "gramaticas.cpp" /* yacc.c:1646  */
     {  }
-#line 1407 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1485 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 212 "gramaticas.cpp" /* yacc.c:1646  */
+#line 290 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		extern int yylineno;
 
@@ -1424,20 +1502,20 @@ yyreduce:
 			exit(-1);
 		}
 	}
-#line 1428 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1506 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 232 "gramaticas.cpp" /* yacc.c:1646  */
+#line 310 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		(yyval.parametros) = new std::list<std::string>();	// Creo la lista de parámetros.
 		(yyval.parametros)->push_front(*(yyvsp[0].hilera));								// Agrego el parámetro.
 	}
-#line 1437 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1515 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 237 "gramaticas.cpp" /* yacc.c:1646  */
+#line 315 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		(yyval.parametros) = new std::list<std::string>();	// Creo la lista de parámetros.
 		(yyval.parametros)->push_front(*(yyvsp[-2].hilera));								// Agrego el parámetro.
@@ -1446,11 +1524,11 @@ yyreduce:
 
 		delete (yyvsp[0].parametros);													// Elimino las listas que se crearon que ya están vacías.
 	}
-#line 1450 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1528 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1454 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1532 "gramaticas.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1678,7 +1756,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 248 "gramaticas.cpp" /* yacc.c:1906  */
+#line 326 "gramaticas.cpp" /* yacc.c:1906  */
 
 int main(int argc, char** argv)
 {

@@ -1,5 +1,6 @@
-gato - perros -  conejo      = metodo(3);
+print perro;
+gato - perro = metodo(2);
 
 print gato;
-print perros;
-print conejo;
+print perro;
+print perro;
