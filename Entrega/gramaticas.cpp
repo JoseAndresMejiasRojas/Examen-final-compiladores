@@ -4,6 +4,7 @@
 #include <string>
 #include <stack>
 #include <list>
+#include <fstream>
 
 extern "C" int yylex();
 extern "C" int yyparse();
@@ -13,6 +14,7 @@ void yyerror(const char *s);
 
 std::list<std::string> lista_instrucciones;
 std::list<std::string> lista_variables;
+std::list<std::string> lista_parametros;
 int cantidad_variables = 0;
 bool metodo_declarado = false;
 
@@ -109,6 +111,26 @@ bool revisar_scope()
 	return error;
 }
 
+void generar_mips(std::list<std::string> lista_parametros)
+{
+	std::ofstream codigo_mips("codigo.s");	// Creo el archivo para MIPS.
+	//codigo_mips <<  "Prueba2" << std::endl; ejemplo para escribir mips.
+
+	// Generar una variable (.data) para cada parámetro?  Para solucionar cuando haya n parámetros.
+	codigo_mips << ".data" << std::endl;
+
+	std::list<std::string>::iterator it_parametros = lista_parametros.begin();
+
+	// Escribo las variables necesarias para guardar valores.  Note que no tienen ningún valor.
+	for( int contador = 0; contador < lista_parametros.size(); ++contador, ++it_parametros )
+	{
+		codigo_mips << *it_parametros << ":\t.word" << std::endl;
+	}
+
+	codigo_mips << ".text" << std::endl;
+
+}
+
 %}
 %error-verbose
 
@@ -158,6 +180,8 @@ principal:
 			exit(-1);
 		}
 
+		// Genero MIPS acorde a la lista que tengo.
+		generar_mips(*$1);
 	}
 	;
 
@@ -169,8 +193,6 @@ instrucciones:
 		lista_variables.push_front(*$2);
 
 		lista_instrucciones.push_front("P"+*$2);	// Con P ya que no existe un ID que empiece con mayúscula.
-
-		// MIPS.
 	}
 	| metodo_retorno PUNTOYCOMA instrucciones
 	{

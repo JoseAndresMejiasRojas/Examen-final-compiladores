@@ -69,6 +69,7 @@
 #include <string>
 #include <stack>
 #include <list>
+#include <fstream>
 
 extern "C" int yylex();
 extern "C" int yyparse();
@@ -78,6 +79,7 @@ void yyerror(const char *s);
 
 std::list<std::string> lista_instrucciones;
 std::list<std::string> lista_variables;
+std::list<std::string> lista_parametros;
 int cantidad_variables = 0;
 bool metodo_declarado = false;
 
@@ -174,8 +176,25 @@ bool revisar_scope()
 	return error;
 }
 
+void generar_mips(std::list<std::string> lista_parametros)
+{
+	std::ofstream codigo_mips("codigo.s");	// Creo el archivo para MIPS.
+	//codigo_mips <<  "Prueba2" << std::endl; ejemplo para escribir mips.
 
-#line 179 "gramaticas.tab.c" /* yacc.c:339  */
+	// Generar una variable (.data) para cada parámetro?  Para solucionar cuando haya n parámetros.
+	codigo_mips << ".data" << std::endl;
+
+	std::list<std::string>::iterator it_parametros = lista_parametros.begin();
+
+	for( int contador = 0; contador < lista_parametros.size(); ++contador, ++it_parametros )
+	{
+		codigo_mips << *it_parametros << ":\t.word" << std::endl;
+	}
+
+}
+
+
+#line 198 "gramaticas.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -205,12 +224,12 @@ bool revisar_scope()
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 115 "gramaticas.cpp" /* yacc.c:355  */
+#line 134 "gramaticas.cpp" /* yacc.c:355  */
 
 	#include <list>
 	#include <string>
 
-#line 214 "gramaticas.tab.c" /* yacc.c:355  */
+#line 233 "gramaticas.tab.c" /* yacc.c:355  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -234,13 +253,13 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 119 "gramaticas.cpp" /* yacc.c:355  */
+#line 138 "gramaticas.cpp" /* yacc.c:355  */
 
 	std::string* hilera;
 	int intVal;
 	std::list<std::string>* parametros;
 
-#line 244 "gramaticas.tab.c" /* yacc.c:355  */
+#line 263 "gramaticas.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -257,7 +276,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 261 "gramaticas.tab.c" /* yacc.c:358  */
+#line 280 "gramaticas.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -555,7 +574,7 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   143,   143,   147,   165,   175,   188,   192,   212,   217
+       0,   162,   162,   166,   186,   194,   207,   211,   231,   236
 };
 #endif
 
@@ -1332,7 +1351,7 @@ yyreduce:
   switch (yyn)
     {
         case 3:
-#line 148 "gramaticas.cpp" /* yacc.c:1646  */
+#line 167 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		// Necesito verificar que las variables que imprimo se hayan declarado en el método.
 		if( revisar_existencia_parametros(*(yyvsp[0].parametros)) == true && lista_variables.size() > 0 )
@@ -1346,26 +1365,26 @@ yyreduce:
 			exit(-1);
 		}
 
+		// Genero MIPS acorde a la lista que tengo.
+		generar_mips(*(yyvsp[0].parametros));
 	}
-#line 1351 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1372 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 166 "gramaticas.cpp" /* yacc.c:1646  */
+#line 187 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		(yyval.parametros) = (yyvsp[0].parametros);
 
 		lista_variables.push_front(*(yyvsp[-2].hilera));
 
 		lista_instrucciones.push_front("P"+*(yyvsp[-2].hilera));	// Con P ya que no existe un ID que empiece con mayúscula.
-
-		// MIPS.
 	}
-#line 1365 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1384 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 176 "gramaticas.cpp" /* yacc.c:1646  */
+#line 195 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		(yyval.parametros) = (yyvsp[-2].parametros);
 
@@ -1378,17 +1397,17 @@ yyreduce:
 
 		lista_instrucciones.push_front("metodo_retorno");
 	}
-#line 1382 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1401 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 188 "gramaticas.cpp" /* yacc.c:1646  */
+#line 207 "gramaticas.cpp" /* yacc.c:1646  */
     {  }
-#line 1388 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1407 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 193 "gramaticas.cpp" /* yacc.c:1646  */
+#line 212 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		extern int yylineno;
 
@@ -1405,20 +1424,20 @@ yyreduce:
 			exit(-1);
 		}
 	}
-#line 1409 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1428 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 213 "gramaticas.cpp" /* yacc.c:1646  */
+#line 232 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		(yyval.parametros) = new std::list<std::string>();	// Creo la lista de parámetros.
 		(yyval.parametros)->push_front(*(yyvsp[0].hilera));								// Agrego el parámetro.
 	}
-#line 1418 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1437 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 218 "gramaticas.cpp" /* yacc.c:1646  */
+#line 237 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		(yyval.parametros) = new std::list<std::string>();	// Creo la lista de parámetros.
 		(yyval.parametros)->push_front(*(yyvsp[-2].hilera));								// Agrego el parámetro.
@@ -1427,11 +1446,11 @@ yyreduce:
 
 		delete (yyvsp[0].parametros);													// Elimino las listas que se crearon que ya están vacías.
 	}
-#line 1431 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1450 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1435 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1454 "gramaticas.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1659,7 +1678,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 229 "gramaticas.cpp" /* yacc.c:1906  */
+#line 248 "gramaticas.cpp" /* yacc.c:1906  */
 
 int main(int argc, char** argv)
 {

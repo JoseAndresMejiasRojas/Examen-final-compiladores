@@ -14,3 +14,37 @@ solicitarlos al usuario.  Por lo que mediante MIPS, necesito solicitar los valoe
 
 Las declaraciones se hacen propiamente en los parámetros.  Es decir, me preocupo únicamente que los
 parámetros no se repitan.
+
+Para generar código en MIPS:
+
+Tengo una lista con todas las instrucciones.  En orden a como viene, primero viene el método y luego los print.
+
+Primer reto: tener donde se guardan los valores ingresados por el usuario.  Ya sea en registros o en variables.
+
+Segundo reto: imprimir esos valores acorde a lo que se escribió en las instruccioes.
+
+Ojo el simulador para probar el MIPS: http://pages.cs.wisc.edu/~larus/spim.html
+
+Esto guarda lo que hay en $t1 en var1
+sw $t1, var1
+
+
+Esto imprime 5.
+li $v0, 1       # $system call code for print_int
+li $a0, 5       # $integer to print
+syscall         # print it
+
+
+Esto lee un int de la entrada estandar.  Se guarda en $t0.
+li $v0,5
+syscall
+move $t0,$v0
+
+
+
+
+
+
+
+
+
