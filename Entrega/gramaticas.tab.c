@@ -76,16 +76,10 @@ extern "C" FILE *yyin;
 extern "C" char* yytext;
 void yyerror(const char *s);
 
+std::list<std::string> lista_instrucciones;
 std::list<std::string> lista_variables;
 int cantidad_variables = 0;
 bool metodo_declarado = false;
-
-// retorna -1 si hay error.
-int analisis_semantico(std::list<std::string> lista)
-{
-
-	return 0;
-}
 
 // retorna -1 si hay error.
 bool revisar_variables_repetidas(std::list<std::string> lista)
@@ -154,8 +148,34 @@ bool revisar_existencia_parametros(std::list<std::string> lista_metodo)
 	return error;
 }
 
+bool revisar_scope()
+{
+	bool error = false;
+	bool antes = false;	// Para verificar si el print (si es que hay) está antes o después del método.
 
-#line 159 "gramaticas.tab.c" /* yacc.c:339  */
+	std::list<std::string>::iterator it_instrucciones=lista_instrucciones.begin();
+
+	while( it_instrucciones != lista_instrucciones.end() && error == false )
+	{
+		if( (*it_instrucciones)[0] == 'P' )	// Si detecto un print.
+		{
+			if( antes == false )	// Si es falso, hay un print antes que el método.
+			{
+				error = true;
+			}
+		}
+		else	// Si es el método.
+		{
+			antes = true;
+		}
+		++it_instrucciones;
+	}
+
+	return error;
+}
+
+
+#line 179 "gramaticas.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -185,12 +205,12 @@ bool revisar_existencia_parametros(std::list<std::string> lista_metodo)
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 95 "gramaticas.cpp" /* yacc.c:355  */
+#line 115 "gramaticas.cpp" /* yacc.c:355  */
 
 	#include <list>
 	#include <string>
 
-#line 194 "gramaticas.tab.c" /* yacc.c:355  */
+#line 214 "gramaticas.tab.c" /* yacc.c:355  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -214,13 +234,13 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 99 "gramaticas.cpp" /* yacc.c:355  */
+#line 119 "gramaticas.cpp" /* yacc.c:355  */
 
 	std::string* hilera;
 	int intVal;
 	std::list<std::string>* parametros;
 
-#line 224 "gramaticas.tab.c" /* yacc.c:355  */
+#line 244 "gramaticas.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -237,7 +257,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 241 "gramaticas.tab.c" /* yacc.c:358  */
+#line 261 "gramaticas.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -535,7 +555,7 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   123,   123,   127,   140,   148,   158,   162,   182,   187
+       0,   143,   143,   147,   165,   175,   188,   192,   212,   217
 };
 #endif
 
@@ -1312,7 +1332,7 @@ yyreduce:
   switch (yyn)
     {
         case 3:
-#line 128 "gramaticas.cpp" /* yacc.c:1646  */
+#line 148 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		// Necesito verificar que las variables que imprimo se hayan declarado en el método.
 		if( revisar_existencia_parametros(*(yyvsp[0].parametros)) == true && lista_variables.size() > 0 )
@@ -1320,45 +1340,55 @@ yyreduce:
 			std::cout << "Esta imprimiendo algo que no existe." << std::endl;
 			exit(-1);
 		}
+		else if( revisar_scope() == true )
+		{
+			std::cout << "Hay un print antes del método" << std::endl;
+			exit(-1);
+		}
 
 	}
-#line 1326 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1351 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 141 "gramaticas.cpp" /* yacc.c:1646  */
+#line 166 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		(yyval.parametros) = (yyvsp[0].parametros);
 
 		lista_variables.push_front(*(yyvsp[-2].hilera));
 
+		lista_instrucciones.push_front("P"+*(yyvsp[-2].hilera));	// Con P ya que no existe un ID que empiece con mayúscula.
+
 		// MIPS.
 	}
-#line 1338 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1365 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 149 "gramaticas.cpp" /* yacc.c:1646  */
+#line 176 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		(yyval.parametros) = (yyvsp[-2].parametros);
 
 		if( metodo_declarado == true )
 		{
-			// Varios métodos declarados.  ¿SE PUEDE?
+			std::cout << "Error: Varios métodos declarados." << std::endl;
+			exit(-1);
 		}
 		metodo_declarado = true;
+
+		lista_instrucciones.push_front("metodo_retorno");
 	}
-#line 1352 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1382 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 158 "gramaticas.cpp" /* yacc.c:1646  */
+#line 188 "gramaticas.cpp" /* yacc.c:1646  */
     {  }
-#line 1358 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1388 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 163 "gramaticas.cpp" /* yacc.c:1646  */
+#line 193 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		extern int yylineno;
 
@@ -1375,20 +1405,20 @@ yyreduce:
 			exit(-1);
 		}
 	}
-#line 1379 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1409 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 183 "gramaticas.cpp" /* yacc.c:1646  */
+#line 213 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		(yyval.parametros) = new std::list<std::string>();	// Creo la lista de parámetros.
 		(yyval.parametros)->push_front(*(yyvsp[0].hilera));								// Agrego el parámetro.
 	}
-#line 1388 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1418 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 188 "gramaticas.cpp" /* yacc.c:1646  */
+#line 218 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		(yyval.parametros) = new std::list<std::string>();	// Creo la lista de parámetros.
 		(yyval.parametros)->push_front(*(yyvsp[-2].hilera));								// Agrego el parámetro.
@@ -1397,11 +1427,11 @@ yyreduce:
 
 		delete (yyvsp[0].parametros);													// Elimino las listas que se crearon que ya están vacías.
 	}
-#line 1401 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1431 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1405 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1435 "gramaticas.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1629,7 +1659,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 199 "gramaticas.cpp" /* yacc.c:1906  */
+#line 229 "gramaticas.cpp" /* yacc.c:1906  */
 
 int main(int argc, char** argv)
 {

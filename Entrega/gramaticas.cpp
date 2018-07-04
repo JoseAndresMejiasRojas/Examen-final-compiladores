@@ -11,16 +11,10 @@ extern "C" FILE *yyin;
 extern "C" char* yytext;
 void yyerror(const char *s);
 
+std::list<std::string> lista_instrucciones;
 std::list<std::string> lista_variables;
 int cantidad_variables = 0;
 bool metodo_declarado = false;
-
-// retorna -1 si hay error.
-int analisis_semantico(std::list<std::string> lista)
-{
-
-	return 0;
-}
 
 // retorna -1 si hay error.
 bool revisar_variables_repetidas(std::list<std::string> lista)
@@ -89,6 +83,32 @@ bool revisar_existencia_parametros(std::list<std::string> lista_metodo)
 	return error;
 }
 
+bool revisar_scope()
+{
+	bool error = false;
+	bool antes = false;	// Para verificar si el print (si es que hay) está antes o después del método.
+
+	std::list<std::string>::iterator it_instrucciones=lista_instrucciones.begin();
+
+	while( it_instrucciones != lista_instrucciones.end() && error == false )
+	{
+		if( (*it_instrucciones)[0] == 'P' )	// Si detecto un print.
+		{
+			if( antes == false )	// Si es falso, hay un print antes que el método.
+			{
+				error = true;
+			}
+		}
+		else	// Si es el método.
+		{
+			antes = true;
+		}
+		++it_instrucciones;
+	}
+
+	return error;
+}
+
 %}
 %error-verbose
 
@@ -132,6 +152,11 @@ principal:
 			std::cout << "Esta imprimiendo algo que no existe." << std::endl;
 			exit(-1);
 		}
+		else if( revisar_scope() == true )
+		{
+			std::cout << "Hay un print antes del método" << std::endl;
+			exit(-1);
+		}
 
 	}
 	;
@@ -143,6 +168,8 @@ instrucciones:
 
 		lista_variables.push_front(*$2);
 
+		lista_instrucciones.push_front("P"+*$2);	// Con P ya que no existe un ID que empiece con mayúscula.
+
 		// MIPS.
 	}
 	| metodo_retorno PUNTOYCOMA instrucciones
@@ -151,9 +178,12 @@ instrucciones:
 
 		if( metodo_declarado == true )
 		{
-			// Varios métodos declarados.  ¿SE PUEDE?
+			std::cout << "Error: Varios métodos declarados." << std::endl;
+			exit(-1);
 		}
 		metodo_declarado = true;
+
+		lista_instrucciones.push_front("metodo_retorno");
 	}
 	| {  }
 	;
