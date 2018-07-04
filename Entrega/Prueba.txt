@@ -1,3 +1,7 @@
+malo;
 perro;
 
-perro - gato - camello - perro = metodo(5);
+
+malo - perro - oveja  = metodo(5);
+
+oveja;

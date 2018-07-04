@@ -1,11 +1,9 @@
 %{
+#include <cstdio>
 #include <iostream>
 #include <string>
 #include <stack>
 #include <list>
-
-
-
 
 extern "C" int yylex();
 extern "C" int yyparse();
@@ -14,12 +12,13 @@ extern "C" char* yytext;
 void yyerror(const char *s);
 
 std::list<std::string> lista_variables;
+std::list<std::string> lista_parametros;
 int cantidad_variables = 0;
 
 // retorna -1 si hay error.
 int analisis_semantico(std::list<std::string> lista)
 {
-	
+
 	return 0;
 }
 
@@ -31,7 +30,7 @@ bool revisar_variables_repetidas(std::list<std::string> lista)
 	std::list<std::string>::iterator it = lista.begin();
 	std::list<std::string>::iterator it2 = it;
 	++it2;
-	
+
 	while( it != lista.end() && repetido == false )
 	{
 		while( it2 != lista.end() )
@@ -46,8 +45,43 @@ bool revisar_variables_repetidas(std::list<std::string> lista)
 		it2 = it;
 		++it2;
 	}
-	
+
 	return repetido;
+}
+
+bool revisar_existencia_parametros(std::list<std::string> lista_parametros)
+{
+	bool error = false;
+	bool existe = false;
+
+	std::list<std::string>::iterator it_parametros=lista_parametros.begin();
+	std::list<std::string>::iterator it_variables=lista_variables.begin();
+
+
+	while( it_parametros != lista_parametros.end() && error == false )
+	{
+		while(  it_variables != lista_variables.end() && existe == false )
+		{
+			if( it_parametros->compare(*it_variables) == 0 )
+			{
+				existe = true;
+			}
+			++it_variables;
+		}
+
+		if( existe == false )
+		{
+			error = true;
+		}
+
+		// Reinicio.
+		existe = false;
+		it_variables = lista_variables.begin();
+
+		++it_parametros;
+	}
+
+	return error;
 }
 
 %}
@@ -74,6 +108,8 @@ bool revisar_variables_repetidas(std::list<std::string> lista)
 %token <hilera> PUNTOYCOMA ";"
 
 %type <parametros> varios_parametros
+%type <parametros> metodo_retorno
+%type <parametros> instrucciones
 
 %%
 //This is where the fun begins.
@@ -81,62 +117,89 @@ bool revisar_variables_repetidas(std::list<std::string> lista)
 super:
 	principal
 	;
-	
+
 principal:
 	instrucciones
 	{
-		// Aquí verifico que no tenga ninguna variable declarada repetida.
+		// En instrucciones tengo las variables ya agregadas.
+		if( $1 != NULL )
+		{
+			if( revisar_existencia_parametros(*$1) == true )
+			{
+				std::cout << "Un parámetro no existe." << std::endl;
+			}
+		}
 	}
 	;
-	
+
 instrucciones:
 	ID PUNTOYCOMA instrucciones
 	{
 		// Con *$1 obtengo el valor del token.
+		bool error = false;
+
+		for (std::list<std::string>::iterator it=lista_variables.begin(); it != lista_variables.end(); ++it)
+		{
+			if( it->compare(*$1) == 0 )
+			{
+				error = true;
+			}
+		}
+
+		if( error == true )
+		{
+			std::cout << "Error, no pueden haber variables repetidas." << std::endl;
+			exit(-1);
+		}
+
+
 		lista_variables.push_front(*$1);	// Agrego variables.
-		++cantidad_variables;				// Tengo un registro de la cantidad de variables.  Note que también cuenta las repetidas.
+		++cantidad_variables;							// Tengo un registro de la cantidad de variables.
+																			// Note que también cuenta las repetidas.
+
+		$$ = $3;
+
 	}
 	| PRINT ID PUNTOYCOMA instrucciones
 	{
 		// MIPS.
+		$$ = $4;
 	}
 	| metodo_retorno PUNTOYCOMA instrucciones
 	{
-		// MIPS.
+		$$ = $1;
 	}
-	| 
+	| {  } //todo bien aquí.
 	;
 
 metodo_retorno:
 	varios_parametros IGUAL ID PARENTESIS_IZQUIERDO NUM PARENTESIS_DERECHO
 	{
 		extern int yylineno;
-		// Verifico que varios_parametros se encuentren en lista_variables.
-		
+
 		// Note que aquí ya tengo todos los parámetros agregados.
 		if( revisar_variables_repetidas(*$1) == true )	// Si hay errores, me salgo.
 		{
 			std::cout << "Error en la linea " << yylineno << ", no pueden haber parametros repetidos." << std::endl;
 			exit(-1);
 		}
-		
 	}
 	;
-	
+
 varios_parametros:
 	ID
 	{
 		$$ = new std::list<std::string>();	// Creo la lista de parámetros.
-		$$->push_front(*$1);				// Agrego el parámetro.
+		$$->push_front(*$1);								// Agrego el parámetro.
 	}
 	| ID SEPARADOR varios_parametros
 	{
 		$$ = new std::list<std::string>();	// Creo la lista de parámetros.
-		$$->push_front(*$1);			// Agrego el parámetro.
-		
-		$$->merge(*$3);					// Hago un merge para tener una sola lista.
-		
-		delete $3;						// Elimino las listas que se crearon que ya están vacías.
+		$$->push_front(*$1);								// Agrego el parámetro.
+
+		$$->merge(*$3);											// Hago un merge para tener una sola lista.
+
+		delete $3;													// Elimino las listas que se crearon que ya están vacías.
 	}
 	;
 
@@ -146,12 +209,12 @@ int main(int argc, char** argv) {
 	if(argc > 1)
 	{
 		yyin = fopen(argv[0],"r");
-	} else 
+	} else
 	{
 		yyin = stdin;
 	}
 	yyparse();
-	
+
 	return 0;
 }
 
@@ -166,7 +229,7 @@ void printError(std::string errormsg, char tipo)
 	}
 }
 
-void yyerror(const char *s) 
+void yyerror(const char *s)
 {
 	extern int yylineno;
 	printf("\n%s   , en la linea %d\n",s,yylineno);
