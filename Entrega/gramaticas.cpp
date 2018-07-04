@@ -12,8 +12,8 @@ extern "C" char* yytext;
 void yyerror(const char *s);
 
 std::list<std::string> lista_variables;
-std::list<std::string> lista_parametros;
 int cantidad_variables = 0;
+bool metodo_declarado = false;
 
 // retorna -1 si hay error.
 int analisis_semantico(std::list<std::string> lista)
@@ -49,24 +49,29 @@ bool revisar_variables_repetidas(std::list<std::string> lista)
 	return repetido;
 }
 
-bool revisar_existencia_parametros(std::list<std::string> lista_parametros)
+bool revisar_existencia_parametros(std::list<std::string> lista_metodo)
 {
 	bool error = false;
 	bool existe = false;
 
-	std::list<std::string>::iterator it_parametros=lista_parametros.begin();
+	std::list<std::string>::iterator it_metodo=lista_metodo.begin();
 	std::list<std::string>::iterator it_variables=lista_variables.begin();
-
-
-	while( it_parametros != lista_parametros.end() && error == false )
+/*
+	for (std::list<std::string>::iterator it=lista_variables.begin(); it != lista_variables.end(); ++it)
 	{
-		while(  it_variables != lista_variables.end() && existe == false )
+		std::cout << *it  << std::endl;
+	}
+*/
+
+	while( it_variables != lista_variables.end() && error == false )
+	{
+		while(  it_metodo != lista_metodo.end() && existe == false )
 		{
-			if( it_parametros->compare(*it_variables) == 0 )
+			if( it_variables->compare(*it_metodo) == 0 )
 			{
 				existe = true;
 			}
-			++it_variables;
+			++it_metodo;
 		}
 
 		if( existe == false )
@@ -76,9 +81,9 @@ bool revisar_existencia_parametros(std::list<std::string> lista_parametros)
 
 		// Reinicio.
 		existe = false;
-		it_variables = lista_variables.begin();
+		it_metodo = lista_metodo.begin();
 
-		++it_parametros;
+		++it_variables;
 	}
 
 	return error;
@@ -121,55 +126,36 @@ super:
 principal:
 	instrucciones
 	{
-		// En instrucciones tengo las variables ya agregadas.
-		if( $1 != NULL )
+		// Necesito verificar que las variables que imprimo se hayan declarado en el método.
+		if( revisar_existencia_parametros(*$1) == true && lista_variables.size() > 0 )
 		{
-			if( revisar_existencia_parametros(*$1) == true )
-			{
-				std::cout << "Un parámetro no existe." << std::endl;
-			}
+			std::cout << "Esta imprimiendo algo que no existe." << std::endl;
+			exit(-1);
 		}
+
 	}
 	;
 
 instrucciones:
-	ID PUNTOYCOMA instrucciones
+	PRINT ID PUNTOYCOMA instrucciones
 	{
-		// Con *$1 obtengo el valor del token.
-		bool error = false;
-
-		for (std::list<std::string>::iterator it=lista_variables.begin(); it != lista_variables.end(); ++it)
-		{
-			if( it->compare(*$1) == 0 )
-			{
-				error = true;
-			}
-		}
-
-		if( error == true )
-		{
-			std::cout << "Error, no pueden haber variables repetidas." << std::endl;
-			exit(-1);
-		}
-
-
-		lista_variables.push_front(*$1);	// Agrego variables.
-		++cantidad_variables;							// Tengo un registro de la cantidad de variables.
-																			// Note que también cuenta las repetidas.
-
-		$$ = $3;
-
-	}
-	| PRINT ID PUNTOYCOMA instrucciones
-	{
-		// MIPS.
 		$$ = $4;
+
+		lista_variables.push_front(*$2);
+
+		// MIPS.
 	}
 	| metodo_retorno PUNTOYCOMA instrucciones
 	{
 		$$ = $1;
+
+		if( metodo_declarado == true )
+		{
+			// Varios métodos declarados.  ¿SE PUEDE?
+		}
+		metodo_declarado = true;
 	}
-	| {  } //todo bien aquí.
+	| {  }
 	;
 
 metodo_retorno:
@@ -181,6 +167,12 @@ metodo_retorno:
 		if( revisar_variables_repetidas(*$1) == true )	// Si hay errores, me salgo.
 		{
 			std::cout << "Error en la linea " << yylineno << ", no pueden haber parametros repetidos." << std::endl;
+			exit(-1);
+		}
+
+		if( $1->size() != $5 )
+		{
+			std::cout << "Error en la linea " << yylineno << ", El valor del parámetro tiene que ser igual a la cantidad de variables." << std::endl;
 			exit(-1);
 		}
 	}
@@ -205,7 +197,8 @@ varios_parametros:
 
 // This is where we end our suffering.
 %%
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
 	if(argc > 1)
 	{
 		yyin = fopen(argv[0],"r");
@@ -221,7 +214,7 @@ int main(int argc, char** argv) {
 void printError(std::string errormsg, char tipo)
 {
 	extern int yylineno;
-	std::cout<< errormsg<<" en la linea: "<<yylineno<<"\n";
+	std::cout<< errormsg<<" en la linea: "<<yylineno<< std::endl;
 	if(tipo == 'a')
 	{
 		printf("El error es: %s\n",yytext);

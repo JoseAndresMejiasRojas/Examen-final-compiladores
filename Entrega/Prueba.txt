@@ -1,7 +1,5 @@
-malo;
-perro;
+malo - perro - oveja  = metodo(3);
 
-
-malo - perro - oveja  = metodo(5);
-
-oveja;
+print malo;
+print perro;
+print oveja;

@@ -77,8 +77,8 @@ extern "C" char* yytext;
 void yyerror(const char *s);
 
 std::list<std::string> lista_variables;
-std::list<std::string> lista_parametros;
 int cantidad_variables = 0;
+bool metodo_declarado = false;
 
 // retorna -1 si hay error.
 int analisis_semantico(std::list<std::string> lista)
@@ -114,24 +114,29 @@ bool revisar_variables_repetidas(std::list<std::string> lista)
 	return repetido;
 }
 
-bool revisar_existencia_parametros(std::list<std::string> lista_parametros)
+bool revisar_existencia_parametros(std::list<std::string> lista_metodo)
 {
 	bool error = false;
 	bool existe = false;
 
-	std::list<std::string>::iterator it_parametros=lista_parametros.begin();
+	std::list<std::string>::iterator it_metodo=lista_metodo.begin();
 	std::list<std::string>::iterator it_variables=lista_variables.begin();
-
-
-	while( it_parametros != lista_parametros.end() && error == false )
+/*
+	for (std::list<std::string>::iterator it=lista_variables.begin(); it != lista_variables.end(); ++it)
 	{
-		while(  it_variables != lista_variables.end() && existe == false )
+		std::cout << *it  << std::endl;
+	}
+*/
+
+	while( it_variables != lista_variables.end() && error == false )
+	{
+		while(  it_metodo != lista_metodo.end() && existe == false )
 		{
-			if( it_parametros->compare(*it_variables) == 0 )
+			if( it_variables->compare(*it_metodo) == 0 )
 			{
 				existe = true;
 			}
-			++it_variables;
+			++it_metodo;
 		}
 
 		if( existe == false )
@@ -141,16 +146,16 @@ bool revisar_existencia_parametros(std::list<std::string> lista_parametros)
 
 		// Reinicio.
 		existe = false;
-		it_variables = lista_variables.begin();
+		it_metodo = lista_metodo.begin();
 
-		++it_parametros;
+		++it_variables;
 	}
 
 	return error;
 }
 
 
-#line 154 "gramaticas.tab.c" /* yacc.c:339  */
+#line 159 "gramaticas.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -180,12 +185,12 @@ bool revisar_existencia_parametros(std::list<std::string> lista_parametros)
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 90 "gramaticas.cpp" /* yacc.c:355  */
+#line 95 "gramaticas.cpp" /* yacc.c:355  */
 
 	#include <list>
 	#include <string>
 
-#line 189 "gramaticas.tab.c" /* yacc.c:355  */
+#line 194 "gramaticas.tab.c" /* yacc.c:355  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -209,13 +214,13 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 94 "gramaticas.cpp" /* yacc.c:355  */
+#line 99 "gramaticas.cpp" /* yacc.c:355  */
 
 	std::string* hilera;
 	int intVal;
 	std::list<std::string>* parametros;
 
-#line 219 "gramaticas.tab.c" /* yacc.c:355  */
+#line 224 "gramaticas.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -232,7 +237,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 236 "gramaticas.tab.c" /* yacc.c:358  */
+#line 241 "gramaticas.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -472,18 +477,18 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  11
+#define YYFINAL  10
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   19
+#define YYLAST   18
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  12
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  6
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  10
+#define YYNRULES  9
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  24
+#define YYNSTATES  21
 
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
@@ -530,8 +535,7 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   118,   118,   122,   136,   163,   168,   172,   176,   190,
-     195
+       0,   123,   123,   127,   140,   148,   158,   162,   182,   187
 };
 #endif
 
@@ -557,10 +561,10 @@ static const yytype_uint16 yytoknum[] =
 };
 # endif
 
-#define YYPACT_NINF -10
+#define YYPACT_NINF -11
 
 #define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-10)))
+  (!!((Yystate) == (-11)))
 
 #define YYTABLE_NINF -1
 
@@ -571,9 +575,9 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      -4,    -2,    -1,     5,   -10,   -10,     0,     1,     2,    -4,
-       3,   -10,    -4,     7,     9,   -10,   -10,    -4,   -10,     8,
-     -10,    12,    10,   -10
+      -5,    -2,     1,     3,   -11,   -11,    -4,    -1,     4,     0,
+     -11,    -5,     5,   -11,    -5,   -11,     6,   -11,     9,     8,
+     -11
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -581,15 +585,15 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       7,     9,     0,     0,     2,     3,     0,     0,     0,     7,
-       0,     1,     7,     0,     9,    10,     4,     7,     6,     0,
-       5,     0,     0,     8
+       6,     8,     0,     0,     2,     3,     0,     0,     0,     0,
+       1,     6,     0,     9,     6,     5,     0,     4,     0,     0,
+       7
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -10,   -10,   -10,    -9,   -10,    11
+     -11,   -11,   -11,   -10,   -11,    10
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
@@ -603,37 +607,35 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
-      16,     1,     8,    18,    10,    11,     2,    14,    20,     9,
-      13,    12,    19,     8,    17,    22,    21,    23,     0,    15
+       1,    15,     8,    10,    17,     2,     9,    11,    12,     1,
+      16,    14,    19,     0,    18,    20,     0,     0,    13
 };
 
 static const yytype_int8 yycheck[] =
 {
-       9,     5,     4,    12,     5,     0,    10,     5,    17,    11,
-       9,    11,     5,     4,    11,     3,     8,     7,    -1,     8
+       5,    11,     4,     0,    14,    10,     5,    11,     9,     5,
+       5,    11,     3,    -1,     8,     7,    -1,    -1,     8
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     5,    10,    13,    14,    15,    16,    17,     4,    11,
-       5,     0,    11,     9,     5,    17,    15,    11,    15,     5,
-      15,     8,     3,     7
+       0,     5,    10,    13,    14,    15,    16,    17,     4,     5,
+       0,    11,     9,    17,    11,    15,     5,    15,     8,     3,
+       7
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    12,    13,    14,    15,    15,    15,    15,    16,    17,
-      17
+       0,    12,    13,    14,    15,    15,    15,    16,    17,    17
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     1,     1,     3,     4,     3,     0,     6,     1,
-       3
+       0,     2,     1,     1,     4,     3,     0,     6,     1,     3
 };
 
 
@@ -1310,76 +1312,53 @@ yyreduce:
   switch (yyn)
     {
         case 3:
-#line 123 "gramaticas.cpp" /* yacc.c:1646  */
+#line 128 "gramaticas.cpp" /* yacc.c:1646  */
     {
-		// En instrucciones tengo las variables ya agregadas.
-		if( (yyvsp[0].parametros) != NULL )
+		// Necesito verificar que las variables que imprimo se hayan declarado en el método.
+		if( revisar_existencia_parametros(*(yyvsp[0].parametros)) == true && lista_variables.size() > 0 )
 		{
-			if( revisar_existencia_parametros(*(yyvsp[0].parametros)) == true )
-			{
-				std::cout << "Un parámetro no existe." << std::endl;
-			}
-		}
-	}
-#line 1325 "gramaticas.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 4:
-#line 137 "gramaticas.cpp" /* yacc.c:1646  */
-    {
-		// Con *$1 obtengo el valor del token.
-		bool error = false;
-
-		for (std::list<std::string>::iterator it=lista_variables.begin(); it != lista_variables.end(); ++it)
-		{
-			if( it->compare(*(yyvsp[-2].hilera)) == 0 )
-			{
-				error = true;
-			}
-		}
-
-		if( error == true )
-		{
-			std::cout << "Error, no pueden haber variables repetidas." << std::endl;
+			std::cout << "Esta imprimiendo algo que no existe." << std::endl;
 			exit(-1);
 		}
 
+	}
+#line 1326 "gramaticas.tab.c" /* yacc.c:1646  */
+    break;
 
-		lista_variables.push_front(*(yyvsp[-2].hilera));	// Agrego variables.
-		++cantidad_variables;							// Tengo un registro de la cantidad de variables.
-																			// Note que también cuenta las repetidas.
-
+  case 4:
+#line 141 "gramaticas.cpp" /* yacc.c:1646  */
+    {
 		(yyval.parametros) = (yyvsp[0].parametros);
 
+		lista_variables.push_front(*(yyvsp[-2].hilera));
+
+		// MIPS.
 	}
-#line 1356 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1338 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 164 "gramaticas.cpp" /* yacc.c:1646  */
+#line 149 "gramaticas.cpp" /* yacc.c:1646  */
     {
-		// MIPS.
-		(yyval.parametros) = (yyvsp[0].parametros);
+		(yyval.parametros) = (yyvsp[-2].parametros);
+
+		if( metodo_declarado == true )
+		{
+			// Varios métodos declarados.  ¿SE PUEDE?
+		}
+		metodo_declarado = true;
 	}
-#line 1365 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1352 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 169 "gramaticas.cpp" /* yacc.c:1646  */
-    {
-		(yyval.parametros) = (yyvsp[-2].parametros);
-	}
-#line 1373 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 158 "gramaticas.cpp" /* yacc.c:1646  */
+    {  }
+#line 1358 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 172 "gramaticas.cpp" /* yacc.c:1646  */
-    {  }
-#line 1379 "gramaticas.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 8:
-#line 177 "gramaticas.cpp" /* yacc.c:1646  */
+#line 163 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		extern int yylineno;
 
@@ -1389,21 +1368,27 @@ yyreduce:
 			std::cout << "Error en la linea " << yylineno << ", no pueden haber parametros repetidos." << std::endl;
 			exit(-1);
 		}
+
+		if( (yyvsp[-5].parametros)->size() != (yyvsp[-1].intVal) )
+		{
+			std::cout << "Error en la linea " << yylineno << ", El valor del parámetro tiene que ser igual a la cantidad de variables." << std::endl;
+			exit(-1);
+		}
 	}
-#line 1394 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1379 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
-  case 9:
-#line 191 "gramaticas.cpp" /* yacc.c:1646  */
+  case 8:
+#line 183 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		(yyval.parametros) = new std::list<std::string>();	// Creo la lista de parámetros.
 		(yyval.parametros)->push_front(*(yyvsp[0].hilera));								// Agrego el parámetro.
 	}
-#line 1403 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1388 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
-  case 10:
-#line 196 "gramaticas.cpp" /* yacc.c:1646  */
+  case 9:
+#line 188 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		(yyval.parametros) = new std::list<std::string>();	// Creo la lista de parámetros.
 		(yyval.parametros)->push_front(*(yyvsp[-2].hilera));								// Agrego el parámetro.
@@ -1412,11 +1397,11 @@ yyreduce:
 
 		delete (yyvsp[0].parametros);													// Elimino las listas que se crearon que ya están vacías.
 	}
-#line 1416 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1401 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1420 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1405 "gramaticas.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1644,9 +1629,10 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 207 "gramaticas.cpp" /* yacc.c:1906  */
+#line 199 "gramaticas.cpp" /* yacc.c:1906  */
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
 	if(argc > 1)
 	{
 		yyin = fopen(argv[0],"r");
@@ -1662,7 +1648,7 @@ int main(int argc, char** argv) {
 void printError(std::string errormsg, char tipo)
 {
 	extern int yylineno;
-	std::cout<< errormsg<<" en la linea: "<<yylineno<<"\n";
+	std::cout<< errormsg<<" en la linea: "<<yylineno<< std::endl;
 	if(tipo == 'a')
 	{
 		printf("El error es: %s\n",yytext);
