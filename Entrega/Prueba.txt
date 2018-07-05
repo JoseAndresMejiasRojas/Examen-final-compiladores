@@ -1,3 +1,6 @@
+print a;
+
+
 a - b - c = metodo(3);
 
 print a;

@@ -1,3 +1,8 @@
+/*
+─────────────────────────────────────────────────────────────────────────────────────────────────
+																			Inicio del análisis
+─────────────────────────────────────────────────────────────────────────────────────────────────
+*/
 %{
 #include <cstdio>
 #include <iostream>
@@ -14,7 +19,7 @@ void yyerror(const char *s);
 
 std::list<std::string> lista_instrucciones;
 std::list<std::string> lista_variables;
-std::list<std::string> lista_parametros;
+
 int cantidad_variables = 0;
 bool metodo_declarado = false;
 
@@ -122,7 +127,6 @@ int obtener_index_variable( std::string variable, std::list<std::string>  lista 
 		++it;
 	}
 
-
 	return posicion;
 }
 
@@ -211,6 +215,19 @@ void generar_mips(std::list<std::string> lista_parametros)
 
 }
 %}
+
+/*
+─────────────────────────────────────────────────────────────────────────────────────────────────
+																			Fin del análisis
+─────────────────────────────────────────────────────────────────────────────────────────────────
+*/
+
+
+/*
+─────────────────────────────────────────────────────────────────────────────────────────────────
+																			Inicio de las gramáticas
+─────────────────────────────────────────────────────────────────────────────────────────────────
+*/
 %error-verbose
 
 %code requires{
@@ -336,8 +353,18 @@ varios_parametros:
 		delete $3;													// Elimino las listas que se crearon que ya están vacías.
 	}
 	;
+/*
+─────────────────────────────────────────────────────────────────────────────────────────────────
+																			Fin de las gramáticas
+─────────────────────────────────────────────────────────────────────────────────────────────────
+*/
 
-// This is where we end our suffering.
+
+/*
+─────────────────────────────────────────────────────────────────────────────────────────────────
+																			Código en C++
+─────────────────────────────────────────────────────────────────────────────────────────────────
+*/
 %%
 int main(int argc, char** argv)
 {
@@ -356,7 +383,7 @@ int main(int argc, char** argv)
 void printError(std::string errormsg, char tipo)
 {
 	extern int yylineno;
-	std::cout<< errormsg<<" en la linea: "<<yylineno<< std::endl;
+	std::cout<< errormsg<<" en la linea: "<< yylineno << std::endl;
 	if(tipo == 'a')
 	{
 		remove("codigo.s");
