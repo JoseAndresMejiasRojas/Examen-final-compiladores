@@ -136,14 +136,17 @@ void generar_mips(std::list<std::string> lista_parametros)
 {
 	std::ofstream codigo_mips("codigo.s");	// Creo el archivo para MIPS.
 	int index = -1;
-	//codigo_mips <<  "Prueba2" << std::endl; ejemplo para escribir mips.
 
-	// Generar una variable (.data) para cada parámetro?  Para solucionar cuando haya n parámetros.
+	// Generar variables.
 	codigo_mips << ".data" << std::endl;
 
 	std::list<std::string>::iterator it_parametros = lista_parametros.begin();
 
-	codigo_mips << "arreglo_variables" << ":\t.word 0";
+	codigo_mips << "input:\t.asciiz \"Ingrese los " + std::to_string(lista_parametros.size()) + " valores que se van a guardar:\\n\"" << std::endl;
+	codigo_mips << "output:\t.asciiz \"Valores retornados:\\n\"" << std::endl;
+	codigo_mips << "cambio_linea:\t.asciiz \"\\n\"" << std::endl;
+
+	codigo_mips << "arreglo_variables:\t.word 0";
 
 	// Escribo el arreglo con las variables.  Por deafult es 0.  *Es obligatorio poner un valor.*
 	for( int contador = 0; contador < lista_parametros.size() - 1; ++contador )
@@ -154,6 +157,11 @@ void generar_mips(std::list<std::string> lista_parametros)
 
 	codigo_mips << ".text" << std::endl;
 	codigo_mips << "main:" << std::endl;
+
+	// Imprimo la hilera del input.
+	codigo_mips << "li $v0, 4" << std::endl;
+	codigo_mips << "la $a0, input" << std::endl;
+	codigo_mips << "syscall" << std::endl;
 
 	// Recorro todas las instrucciones.
 	for( std::list<std::string>::iterator it = lista_instrucciones.begin(); it != lista_instrucciones.end(); ++it )
@@ -178,6 +186,10 @@ void generar_mips(std::list<std::string> lista_parametros)
 
 			codigo_mips << "syscall" << std::endl;
 
+			codigo_mips << "li $v0, 4" << std::endl;
+			codigo_mips << "la $a0, cambio_linea" << std::endl;
+			codigo_mips << "syscall" << std::endl;
+
 		}
 		else									// Metodo de retorno.
 		{
@@ -198,6 +210,10 @@ void generar_mips(std::list<std::string> lista_parametros)
 			codigo_mips << "j ciclo" << std::endl;
 
 			codigo_mips << "salir_ciclo:" << std::endl;
+
+			codigo_mips << "li $v0, 4" << std::endl;
+			codigo_mips << "la $a0, output" << std::endl;
+			codigo_mips << "syscall" << std::endl;
 		}
 	}
 

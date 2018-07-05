@@ -1,4 +1,3 @@
-print perro;
 gato - perro = metodo(2);
 
 print gato;

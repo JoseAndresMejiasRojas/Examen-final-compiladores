@@ -2,9 +2,15 @@
 
 .data
 arreglo: .word 0, 1, 2, 3 
+input: .asciiz "Hello there!\n"
 
 .text
 main:
+	li $v0, 4 # strings
+	la $a0, input
+	syscall
+
+	
 	li $t0, 0	# Inmediatos
 	la $t1, arreglo	# Dirección
 ciclo:
