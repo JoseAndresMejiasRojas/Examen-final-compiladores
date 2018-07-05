@@ -126,11 +126,15 @@ bool revisar_existencia_parametros(std::list<std::string> lista_metodo)
 			{
 				existe = true;
 			}
-			++it_metodo;
+			else
+			{
+				++it_metodo;
+			}
 		}
 
 		if( existe == false )
 		{
+			std::cout << "Error: variable " << *it_variables << std::endl;
 			error = true;
 		}
 
@@ -157,6 +161,7 @@ bool revisar_scope()
 		{
 			if( antes == false )	// Si es falso, hay un print antes que el método.
 			{
+				std::cout << "Error: print " <<(*it_instrucciones).substr(1) << std::endl;
 				error = true;
 			}
 		}
@@ -275,7 +280,7 @@ void generar_mips(std::list<std::string> lista_parametros)
 
 }
 
-#line 279 "gramaticas.tab.c" /* yacc.c:339  */
+#line 284 "gramaticas.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -305,12 +310,12 @@ void generar_mips(std::list<std::string> lista_parametros)
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 233 "gramaticas.cpp" /* yacc.c:355  */
+#line 238 "gramaticas.cpp" /* yacc.c:355  */
 
 	#include <list>
 	#include <string>
 
-#line 314 "gramaticas.tab.c" /* yacc.c:355  */
+#line 319 "gramaticas.tab.c" /* yacc.c:355  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -334,13 +339,13 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 237 "gramaticas.cpp" /* yacc.c:355  */
+#line 242 "gramaticas.cpp" /* yacc.c:355  */
 
 	std::string* hilera;
 	int intVal;
 	std::list<std::string>* parametros;
 
-#line 344 "gramaticas.tab.c" /* yacc.c:355  */
+#line 349 "gramaticas.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -357,7 +362,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 361 "gramaticas.tab.c" /* yacc.c:358  */
+#line 366 "gramaticas.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -655,7 +660,7 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   261,   261,   265,   296,   304,   317,   321,   341,   346
+       0,   266,   266,   270,   301,   309,   322,   326,   346,   351
 };
 #endif
 
@@ -1432,7 +1437,7 @@ yyreduce:
   switch (yyn)
     {
         case 3:
-#line 266 "gramaticas.cpp" /* yacc.c:1646  */
+#line 271 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		// Necesito verificar que las variables que imprimo se hayan declarado en el método.
 
@@ -1444,13 +1449,13 @@ yyreduce:
 		}
 		else if( revisar_existencia_parametros(*(yyvsp[0].parametros)) == true && lista_variables.size() > 0 )
 		{
-			std::cout << "Error: está imprimiendo algo que no existe." << std::endl;
+			std::cout << "Imprimiendo una variable que no existe." << std::endl;
 			remove("codigo.s");
 			exit(-1);
 		}
 		else if( revisar_scope() == true )
 		{
-			std::cout << "Error: hay un print antes del método" << std::endl;
+			std::cout << "Imprimiendo antes del método" << std::endl;
 			remove("codigo.s");
 			exit(-1);
 		}
@@ -1460,11 +1465,11 @@ yyreduce:
 
 		std::cout << "Todo correcto." << std::endl;
 	}
-#line 1464 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1469 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 297 "gramaticas.cpp" /* yacc.c:1646  */
+#line 302 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		(yyval.parametros) = (yyvsp[0].parametros);
 
@@ -1472,11 +1477,11 @@ yyreduce:
 
 		lista_instrucciones.push_front("P"+*(yyvsp[-2].hilera));	// Con P ya que no existe un ID que empiece con mayúscula.
 	}
-#line 1476 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1481 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 305 "gramaticas.cpp" /* yacc.c:1646  */
+#line 310 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		(yyval.parametros) = (yyvsp[-2].parametros);
 
@@ -1489,17 +1494,17 @@ yyreduce:
 
 		lista_instrucciones.push_front("metodo_retorno");
 	}
-#line 1493 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1498 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 317 "gramaticas.cpp" /* yacc.c:1646  */
+#line 322 "gramaticas.cpp" /* yacc.c:1646  */
     { (yyval.parametros) = NULL; }
-#line 1499 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1504 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 322 "gramaticas.cpp" /* yacc.c:1646  */
+#line 327 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		extern int yylineno;
 
@@ -1516,20 +1521,20 @@ yyreduce:
 			exit(-1);
 		}
 	}
-#line 1520 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1525 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 342 "gramaticas.cpp" /* yacc.c:1646  */
+#line 347 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		(yyval.parametros) = new std::list<std::string>();	// Creo la lista de parámetros.
 		(yyval.parametros)->push_front(*(yyvsp[0].hilera));								// Agrego el parámetro.
 	}
-#line 1529 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1534 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 347 "gramaticas.cpp" /* yacc.c:1646  */
+#line 352 "gramaticas.cpp" /* yacc.c:1646  */
     {
 		(yyval.parametros) = new std::list<std::string>();	// Creo la lista de parámetros.
 		(yyval.parametros)->push_front(*(yyvsp[-2].hilera));								// Agrego el parámetro.
@@ -1538,11 +1543,11 @@ yyreduce:
 
 		delete (yyvsp[0].parametros);													// Elimino las listas que se crearon que ya están vacías.
 	}
-#line 1542 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1547 "gramaticas.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1546 "gramaticas.tab.c" /* yacc.c:1646  */
+#line 1551 "gramaticas.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1770,7 +1775,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 368 "gramaticas.cpp" /* yacc.c:1906  */
+#line 373 "gramaticas.cpp" /* yacc.c:1906  */
 
 int main(int argc, char** argv)
 {
@@ -1789,7 +1794,7 @@ int main(int argc, char** argv)
 void printError(std::string errormsg, char tipo)
 {
 	extern int yylineno;
-	std::cout<< errormsg<<" en la linea: "<<yylineno<< std::endl;
+	std::cout<< errormsg<<" en la linea: "<< yylineno << std::endl;
 	if(tipo == 'a')
 	{
 		remove("codigo.s");

@@ -66,11 +66,15 @@ bool revisar_existencia_parametros(std::list<std::string> lista_metodo)
 			{
 				existe = true;
 			}
-			++it_metodo;
+			else
+			{
+				++it_metodo;
+			}
 		}
 
 		if( existe == false )
 		{
+			std::cout << "Error: variable " << *it_variables << std::endl;
 			error = true;
 		}
 
@@ -97,6 +101,7 @@ bool revisar_scope()
 		{
 			if( antes == false )	// Si es falso, hay un print antes que el método.
 			{
+				std::cout << "Error: print " <<(*it_instrucciones).substr(1) << std::endl;
 				error = true;
 			}
 		}
@@ -274,13 +279,13 @@ principal:
 		}
 		else if( revisar_existencia_parametros(*$1) == true && lista_variables.size() > 0 )
 		{
-			std::cout << "Error: está imprimiendo algo que no existe." << std::endl;
+			std::cout << "Imprimiendo una variable que no existe." << std::endl;
 			remove("codigo.s");
 			exit(-1);
 		}
 		else if( revisar_scope() == true )
 		{
-			std::cout << "Error: hay un print antes del método" << std::endl;
+			std::cout << "Imprimiendo antes del método" << std::endl;
 			remove("codigo.s");
 			exit(-1);
 		}
