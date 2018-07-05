@@ -1,5 +1,6 @@
-gato - perro = metodo(2);
+a - b - c = metodo(3);
 
-print gato;
-print perro;
-print perro;
+print a;
+print b;
+print c;
+print a;

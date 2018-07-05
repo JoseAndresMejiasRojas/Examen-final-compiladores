@@ -52,12 +52,6 @@ bool revisar_existencia_parametros(std::list<std::string> lista_metodo)
 
 	std::list<std::string>::iterator it_metodo=lista_metodo.begin();
 	std::list<std::string>::iterator it_variables=lista_variables.begin();
-/*
-	for (std::list<std::string>::iterator it=lista_variables.begin(); it != lista_variables.end(); ++it)
-	{
-		std::cout << *it  << std::endl;
-	}
-*/
 
 	while( it_variables != lista_variables.end() && error == false )
 	{
@@ -169,13 +163,7 @@ void generar_mips(std::list<std::string> lista_parametros)
 		if( (*it)[0] == 'P' )	// Imprimir.
 		{
 			index = obtener_index_variable( (*it).substr(1), lista_parametros );
-			/*
-				li $t1, INDEX
-				mul $t0,$t1,4
-				la $t2, ARREGLO
-				add $t2, $t0
-				lw $a0, 0($t2)
-			*/
+
 			codigo_mips << "li $t1,"+std::to_string(index) << std::endl;
 			codigo_mips << "mul $t0, $t1, 4" << std::endl;					// *4 para moverme de word en word.
 			codigo_mips << "la $t2,arreglo_variables" << std::endl;	// Cargo el arreglo.
@@ -260,19 +248,30 @@ principal:
 	instrucciones
 	{
 		// Necesito verificar que las variables que imprimo se hayan declarado en el método.
-		if( revisar_existencia_parametros(*$1) == true && lista_variables.size() > 0 )
+
+		if( $1 == NULL )
 		{
-			std::cout << "Esta imprimiendo algo que no existe." << std::endl;
+			std::cout << "Error: el método no existe o es incorrecto." << std::endl;
+			remove("codigo.s");
+			exit(-1);
+		}
+		else if( revisar_existencia_parametros(*$1) == true && lista_variables.size() > 0 )
+		{
+			std::cout << "Error: está imprimiendo algo que no existe." << std::endl;
+			remove("codigo.s");
 			exit(-1);
 		}
 		else if( revisar_scope() == true )
 		{
-			std::cout << "Hay un print antes del método" << std::endl;
+			std::cout << "Error: hay un print antes del método" << std::endl;
+			remove("codigo.s");
 			exit(-1);
 		}
 
 		// Genero MIPS acorde a la lista que tengo.
 		generar_mips(*$1);
+
+		std::cout << "Todo correcto." << std::endl;
 	}
 	;
 
@@ -291,14 +290,14 @@ instrucciones:
 
 		if( metodo_declarado == true )
 		{
-			std::cout << "Error: Varios métodos declarados." << std::endl;
+			std::cout << "Error: varios métodos declarados." << std::endl;
 			exit(-1);
 		}
 		metodo_declarado = true;
 
 		lista_instrucciones.push_front("metodo_retorno");
 	}
-	| {  }
+	| { $$ = NULL; }
 	;
 
 metodo_retorno:
@@ -360,14 +359,16 @@ void printError(std::string errormsg, char tipo)
 	std::cout<< errormsg<<" en la linea: "<<yylineno<< std::endl;
 	if(tipo == 'a')
 	{
-		printf("El error es: %s\n",yytext);
-		return;
+		remove("codigo.s");
+		std::cout << "El error es: " << yytext << std::endl;
+		exit(-1);
 	}
 }
 
 void yyerror(const char *s)
 {
 	extern int yylineno;
-	printf("\n%s   , en la linea %d\n",s,yylineno);
-	return;
+	remove("codigo.s");
+	std::cout << s << " en la línea " << yylineno << std::endl;
+	exit(-1);
 }
